@@ -1,0 +1,99 @@
+# Docker Compose for testing all KurrentDB client examples
+# Usage: docker-compose -f docker-compose.test.yaml up --build --abort-on-container-exit
+
+services:
+  kurrentdb:
+    image: docker.kurrent.io/kurrent-latest/kurrentdb:latest
+    container_name: kurrentdb-test
+    environment:
+      - KURRENTDB_CLUSTER_SIZE=1
+      - KURRENTDB_RUN_PROJECTIONS=All
+      - KURRENTDB_START_STANDARD_PROJECTIONS=true
+      - KURRENTDB_NODE_PORT=2113
+      - KURRENTDB_INSECURE=true
+      - KURRENTDB_ENABLE_ATOM_PUB_OVER_HTTP=true
+    ports:
+      - "2113:2113"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:2113/health/live || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  # Python client test
+  test-python:
+    build:
+      context: ./python
+      dockerfile: Dockerfile
+    depends_on:
+      kurrentdb:
+        condition: service_healthy
+    environment:
+      - KURRENTDB_CONNECTION_STRING=kurrentdb://kurrentdb:2113?tls=false
+
+  # Node.js client test
+  test-nodejs:
+    build:
+      context: ./nodejs
+      dockerfile: Dockerfile
+    depends_on:
+      kurrentdb:
+        condition: service_healthy
+    environment:
+      - KURRENTDB_CONNECTION_STRING=kurrentdb://kurrentdb:2113?tls=false
+
+  # .NET client test
+  test-dotnet:
+    build:
+      context: ./dotnet
+      dockerfile: Dockerfile
+    depends_on:
+      kurrentdb:
+        condition: service_healthy
+    environment:
+      - KURRENTDB_CONNECTION_STRING=kurrentdb://kurrentdb:2113?tls=false
+
+  # Go client test
+  test-golang:
+    build:
+      context: ./golang
+      dockerfile: Dockerfile
+    depends_on:
+      kurrentdb:
+        condition: service_healthy
+    environment:
+      - KURRENTDB_CONNECTION_STRING=kurrentdb://kurrentdb:2113?tls=false
+
+  # Rust client test
+  test-rust:
+    build:
+      context: ./rust
+      dockerfile: Dockerfile
+    depends_on:
+      kurrentdb:
+        condition: service_healthy
+    environment:
+      - KURRENTDB_CONNECTION_STRING=kurrentdb://kurrentdb:2113?tls=false
+
+  # Java client test
+  test-java:
+    build:
+      context: ./java
+      dockerfile: Dockerfile
+    depends_on:
+      kurrentdb:
+        condition: service_healthy
+    environment:
+      - KURRENTDB_CONNECTION_STRING=esdb://kurrentdb:2113?tls=false
+
+  # F# client test
+  test-fsharp:
+    build:
+      context: ./fsharp
+      dockerfile: Dockerfile
+    depends_on:
+      kurrentdb:
+        condition: service_healthy
+    environment:
+      - KURRENTDB_CONNECTION_STRING=kurrentdb://kurrentdb:2113?tls=false
