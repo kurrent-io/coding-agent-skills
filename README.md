@@ -85,15 +85,14 @@ kurrentdb/
     ├── SKILL.md              # Skill metadata and quick reference
     ├── reference.md          # Complete API reference (all languages)
     ├── templates/            # Ready-to-run project templates
-    │   ├── docker-compose.yaml
-    │   ├── python/
-    │   ├── nodejs/
-    │   ├── dotnet/
-    │   ├── fsharp/
-    │   ├── golang/
-    │   ├── java/
-    │   └── rust/
-    └── benchmark/            # Performance benchmarks
+        ├── docker-compose.yaml
+        ├── python/
+        ├── nodejs/
+        ├── dotnet/
+        ├── fsharp/
+        ├── golang/
+        ├── java/
+        └── rust/
 ```
 
 ---
