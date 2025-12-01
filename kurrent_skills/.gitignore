@@ -1,0 +1,36 @@
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+target/
+bin/
+obj/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
+*.class
+*.jar
+*.exe
+*.dll
+
+# Benchmark outputs (contain generated prompts)
+benchmark/output/
+benchmark
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local environment
+.env
+.env.local
