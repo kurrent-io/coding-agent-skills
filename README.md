@@ -2,6 +2,9 @@
 
 A comprehensive skill that enables Claude Code to generate accurate, production-ready code for [KurrentDB](https://kurrent.io) (formerly EventStoreDB) - the event-native database.
 
+### Limitation
+This is only supported by Claude Code at the moment. More coding agent supported will be added based on request. Let us  know if you would like to see this is another coding agent.
+
 ## Installing Skills for Claude Code
 
 ### Prerequisites
