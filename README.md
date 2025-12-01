@@ -1,6 +1,6 @@
 # KurrentDB Skill for Claude Code
 
-A comprehensive skill that enables Claude Code to generate accurate, production-ready code for [KurrentDB](https://kurrent.io) (formerly EventStoreDB) - the event-native database for event sourcing and CQRS applications.
+A comprehensive skill that enables Claude Code to generate accurate, production-ready code for [KurrentDB](https://kurrent.io) (formerly EventStoreDB) - the event-native database.
 
 ## Installing Skills for Claude Code
 
