@@ -15,7 +15,7 @@ A comprehensive skill that enables Claude Code to generate accurate, production-
 
 1. Clone this repository to a local directory:
    ```bash
-   git clone https://github.com/your-org/kurrentdb-skill.git ~/skills/kurrentdb
+   git clone https://github.com/kurrent-io/coding-agent-skills ~/skills/kurrentdb
    ```
 
 2. Add the skill to Claude Code by adding it to your `~/.claude/settings.json`:
