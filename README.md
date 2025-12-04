@@ -1,9 +1,18 @@
-# KurrentDB Skill for Claude Code
+# KurrentDB Skill for Coding Agents
 
-A comprehensive skill that enables Claude Code to generate accurate, production-ready code for [KurrentDB](https://kurrent.io) (formerly EventStoreDB) - the event-native database.
+A comprehensive skill that enables AI coding agents to generate accurate, production-ready code for [KurrentDB](https://kurrent.io) (formerly EventStoreDB) - the event-native database.
 
-### Limitation
-This is only supported by Claude Code at the moment. More coding agent supported will be added based on request. Let us  know if you would like to see this is another coding agent.
+## Supported Coding Agents
+
+This skill is compatible with multiple AI coding agents that support the SKILL.md format:
+
+| Agent | Platform | Skill Docs |
+|-------|----------|------------|
+| **Claude Code** | Anthropic | [Skills Documentation](https://docs.anthropic.com/en/docs/claude-code) |
+| **OpenAI Codex** | OpenAI | [Codex CLI](https://github.com/openai/codex) |
+| **Hugging Face Skills** | Hugging Face | [HF Skills Repository](https://github.com/huggingface/skills) |
+
+> **Note:** The SKILL.md format has become a cross-platform standard. OpenAI Codex uses AGENTS.md but is compatible with SKILL.md, and Hugging Face has adopted the same format for their skills library.
 
 ## Installing Skills for Claude Code
 
@@ -53,6 +62,55 @@ cp -r /path/to/kurrentdb/kurrent_skills ~/.claude/skills/kurrentdb
 # Windows
 xcopy /E /I "C:\path\to\kurrentdb\kurrent_skills" "%USERPROFILE%\.claude\skills\kurrentdb"
 ```
+
+## Installing Skills for OpenAI Codex
+
+OpenAI Codex CLI supports skills through the AGENTS.md format, but also recognizes SKILL.md files.
+
+### Installation
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/kurrent-io/coding-agent-skills ~/skills/kurrentdb
+   ```
+
+2. Copy the skill to your project or reference it in your Codex configuration:
+   ```bash
+   # Copy to your project
+   cp ~/skills/kurrentdb/kurrent_skills/SKILL.md ./AGENTS.md
+
+   # Or symlink the reference
+   ln -s ~/skills/kurrentdb/kurrent_skills/reference.md ./kurrentdb-reference.md
+   ```
+
+3. Codex will automatically discover and use the skill when working in that directory.
+
+For more details, see: [Porting Skills to OpenAI Codex](https://blog.fsck.com/2025/10/27/skills-for-openai-codex/)
+
+---
+
+## Installing Skills for Hugging Face Agents
+
+Hugging Face Skills use the same SKILL.md format and are compatible with smolagents and other HF agent tools.
+
+### Installation
+
+1. Clone this repository:
+   ```bash
+   git clone https://github.com/kurrent-io/coding-agent-skills ~/skills/kurrentdb
+   ```
+
+2. Reference the skill in your agent configuration or copy to your project:
+   ```bash
+   # Copy skill folder to your project
+   cp -r ~/skills/kurrentdb/kurrent_skills ./skills/kurrentdb
+   ```
+
+3. The skill will be available to Hugging Face agents working in that directory.
+
+For more details, see: [Hugging Face Skills Repository](https://github.com/huggingface/skills)
+
+---
 
 ### Checking if Skills are Available
 
