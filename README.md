@@ -10,9 +10,6 @@ This skill is compatible with multiple AI coding agents that support the SKILL.m
 |-------|----------|------------|
 | **Claude Code** | Anthropic | [Skills Documentation](https://docs.anthropic.com/en/docs/claude-code) |
 | **OpenAI Codex** | OpenAI | [Codex CLI](https://github.com/openai/codex) |
-| **Hugging Face Skills** | Hugging Face | [HF Skills Repository](https://github.com/huggingface/skills) |
-
-> **Note:** The SKILL.md format has become a cross-platform standard. OpenAI Codex uses AGENTS.md but is compatible with SKILL.md, and Hugging Face has adopted the same format for their skills library.
 
 ## Installing Skills for Claude Code
 
@@ -89,34 +86,11 @@ For more details, see: [Porting Skills to OpenAI Codex](https://blog.fsck.com/20
 
 ---
 
-## Installing Skills for Hugging Face Agents
+## Verifying Skill Installation
 
-Hugging Face Skills use the same SKILL.md format and are compatible with smolagents and other HF agent tools.
+After installation, verify the skill is working with any of these methods:
 
-### Installation
-
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/kurrent-io/coding-agent-skills ~/skills/kurrentdb
-   ```
-
-2. Reference the skill in your agent configuration or copy to your project:
-   ```bash
-   # Copy skill folder to your project
-   cp -r ~/skills/kurrentdb/kurrent_skills ./skills/kurrentdb
-   ```
-
-3. The skill will be available to Hugging Face agents working in that directory.
-
-For more details, see: [Hugging Face Skills Repository](https://github.com/huggingface/skills)
-
----
-
-### Checking if Skills are Available
-
-After installation, you can verify the skill is loaded:
-
-1. **Ask Claude Code directly:**
+1. **Ask your agent directly:**
    ```
    What skills do you have available?
    ```
@@ -125,17 +99,16 @@ After installation, you can verify the skill is loaded:
    Do you have the KurrentDB skill installed?
    ```
 
-2. **Test with a KurrentDB-specific question:**
+2. **Test with a KurrentDB-specific task:**
    ```
    Generate a Python example that appends events to KurrentDB
    ```
+   If the skill is loaded, the agent will use the accurate API from the skill reference rather than potentially outdated training data.
 
-   If the skill is loaded, Claude Code will use the accurate API from the skill reference rather than potentially outdated training data.
-
-3. **Check the skill metadata:**
-   ```
-   Describe the KurrentDB skill capabilities
-   ```
+3. **Check for correct API usage:**
+   - Stream names should use `order-{id}` format (not `orders` collection)
+   - Should use `append_to_stream()` not generic database writes
+   - Event types should be properly structured with type names and JSON data
 
 ### Skill Structure
 
