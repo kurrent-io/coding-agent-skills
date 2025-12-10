@@ -46,7 +46,7 @@ Or use docker-compose - see `templates/docker-compose.yaml`
 ### Optimistic Concurrency (CRITICAL)
 ALWAYS use expected revision for aggregates:
 - `NO_STREAM` - Creating new aggregate (stream must not exist)
-- `StreamExists` - Appending to existing aggregate
+- `StreamExists` - Appending to existing stream
 - Specific revision number - Prevent concurrent modifications
 
 ### Subscriptions
