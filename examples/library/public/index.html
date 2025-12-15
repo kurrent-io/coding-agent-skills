@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library DDD - Event Sourcing Demo</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: #f8f9fa;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.1rem;
+            color: #444;
+        }
+
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+            color: #555;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.6rem 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd6;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-sm {
+            padding: 0.35rem 0.7rem;
+            font-size: 0.8rem;
+        }
+
+        .list {
+            list-style: none;
+        }
+
+        .list-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item:last-child {
+            border-bottom: none;
+        }
+
+        .list-item-info h3 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .list-item-info p {
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-available {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-onhold {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-checkedout {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .badge-regular {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .badge-researcher {
+            background: #cce5ff;
+            color: #004085;
+        }
+
+        .badge-circulating {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .badge-restricted {
+            background: #f5c6cb;
+            color: #721c24;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #888;
+        }
+
+        .empty-state p {
+            margin-bottom: 1rem;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.3s;
+            z-index: 1000;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .toast-success {
+            background: #28a745;
+        }
+
+        .toast-error {
+            background: #dc3545;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            font-size: 1.1rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+        }
+
+        .refresh-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .refresh-btn:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Library DDD</h1>
+        <p>Event Sourcing with KurrentDB</p>
+    </header>
+
+    <div class="container">
+        <div class="grid">
+            <!-- Books Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Books</h2>
+                    <div>
+                        <button class="refresh-btn" onclick="loadBooks()" title="Refresh">&#x21bb;</button>
+                        <button class="btn btn-primary btn-sm" onclick="showAddBookModal()">+ Add Book</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <ul class="list" id="books-list">
+                        <li class="empty-state">
+                            <p>No books yet</p>
+                            <button class="btn btn-primary" onclick="showAddBookModal()">Add your first book</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Patrons Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>Patrons</h2>
+                    <div>
+                        <button class="refresh-btn" onclick="loadPatrons()" title="Refresh">&#x21bb;</button>
+                        <button class="btn btn-primary btn-sm" onclick="showAddPatronModal()">+ Add Patron</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <ul class="list" id="patrons-list">
+                        <li class="empty-state">
+                            <p>No patrons yet</p>
+                            <button class="btn btn-primary" onclick="showAddPatronModal()">Add your first patron</button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Book Modal -->
+    <div class="modal" id="add-book-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Book</h3>
+                <button class="modal-close" onclick="closeModal('add-book-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-book-form">
+                    <div class="form-group">
+                        <label for="book-title">Title *</label>
+                        <input type="text" id="book-title" name="title" required placeholder="Enter book title">
+                    </div>
+                    <div class="form-group">
+                        <label for="book-isbn">ISBN</label>
+                        <input type="text" id="book-isbn" name="isbn" placeholder="978-0-00-000000-0">
+                    </div>
+                    <div class="form-group">
+                        <label for="book-type">Book Type</label>
+                        <select id="book-type" name="bookType">
+                            <option value="Circulating">Circulating</option>
+                            <option value="Restricted">Restricted (Researchers only)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('add-book-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addBook()">Add Book</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Patron Modal -->
+    <div class="modal" id="add-patron-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Patron</h3>
+                <button class="modal-close" onclick="closeModal('add-patron-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="add-patron-form">
+                    <div class="form-group">
+                        <label for="patron-name">Name *</label>
+                        <input type="text" id="patron-name" name="name" required placeholder="Enter patron name">
+                    </div>
+                    <div class="form-group">
+                        <label for="patron-email">Email *</label>
+                        <input type="email" id="patron-email" name="email" required placeholder="patron@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="patron-type">Patron Type</label>
+                        <select id="patron-type" name="patronType">
+                            <option value="Regular">Regular (max 5 holds)</option>
+                            <option value="Researcher">Researcher (unlimited holds)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('add-patron-modal')">Cancel</button>
+                <button class="btn btn-primary" onclick="addPatron()">Add Patron</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Place Hold Modal -->
+    <div class="modal" id="place-hold-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Place Hold</h3>
+                <button class="modal-close" onclick="closeModal('place-hold-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="hold-book-title" style="margin-bottom: 1rem; font-weight: 500;"></p>
+                <form id="place-hold-form">
+                    <input type="hidden" id="hold-book-id">
+                    <div class="form-group">
+                        <label for="hold-patron">Select Patron *</label>
+                        <select id="hold-patron" name="patronId" required>
+                            <option value="">-- Select a patron --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hold-type">Hold Type</label>
+                        <select id="hold-type" name="holdType">
+                            <option value="ClosedEnded">Closed-ended (expires in 7 days)</option>
+                            <option value="OpenEnded">Open-ended (researchers only)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('place-hold-modal')">Cancel</button>
+                <button class="btn btn-warning" onclick="placeHold()">Place Hold</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // API Base URL
+        const API = '/api';
+
+        // State
+        let books = [];
+        let patrons = [];
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadBooks();
+            loadPatrons();
+        });
+
+        // === API Functions ===
+
+        async function loadBooks() {
+            try {
+                const response = await fetch(`${API}/books`);
+                const data = await response.json();
+                books = data.books || [];
+                renderBooks();
+            } catch (error) {
+                showToast('Failed to load books', 'error');
+            }
+        }
+
+        async function loadPatrons() {
+            try {
+                const response = await fetch(`${API}/patrons`);
+                const data = await response.json();
+                patrons = data.patrons || [];
+                renderPatrons();
+            } catch (error) {
+                showToast('Failed to load patrons', 'error');
+            }
+        }
+
+        async function addBook() {
+            const title = document.getElementById('book-title').value.trim();
+            const isbn = document.getElementById('book-isbn').value.trim();
+            const bookType = document.getElementById('book-type').value;
+
+            if (!title) {
+                showToast('Please enter a book title', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API}/books`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, isbn, bookType })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast(`Book "${title}" added successfully`);
+                    closeModal('add-book-modal');
+                    document.getElementById('add-book-form').reset();
+                    loadBooks();
+                } else {
+                    showToast(data.error || 'Failed to add book', 'error');
+                }
+            } catch (error) {
+                showToast('Failed to add book', 'error');
+            }
+        }
+
+        async function addPatron() {
+            const name = document.getElementById('patron-name').value.trim();
+            const email = document.getElementById('patron-email').value.trim();
+            const patronType = document.getElementById('patron-type').value;
+
+            if (!name || !email) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API}/patrons`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, patronType })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast(`Patron "${name}" added successfully`);
+                    closeModal('add-patron-modal');
+                    document.getElementById('add-patron-form').reset();
+                    loadPatrons();
+                } else {
+                    showToast(data.error || 'Failed to add patron', 'error');
+                }
+            } catch (error) {
+                showToast('Failed to add patron', 'error');
+            }
+        }
+
+        async function placeHold() {
+            const bookId = document.getElementById('hold-book-id').value;
+            const patronId = document.getElementById('hold-patron').value;
+            const holdType = document.getElementById('hold-type').value;
+
+            if (!patronId) {
+                showToast('Please select a patron', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API}/books/${bookId}/hold`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patronId, holdType })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast('Hold placed successfully');
+                    closeModal('place-hold-modal');
+                    loadBooks();
+                    loadPatrons();
+                } else {
+                    showToast(data.error || 'Failed to place hold', 'error');
+                }
+            } catch (error) {
+                showToast('Failed to place hold', 'error');
+            }
+        }
+
+        async function cancelHold(bookId, patronId) {
+            try {
+                const response = await fetch(`${API}/books/${bookId}/hold`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patronId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast('Hold canceled');
+                    loadBooks();
+                    loadPatrons();
+                } else {
+                    showToast(data.error || 'Failed to cancel hold', 'error');
+                }
+            } catch (error) {
+                showToast('Failed to cancel hold', 'error');
+            }
+        }
+
+        async function checkoutBook(bookId, patronId) {
+            try {
+                const response = await fetch(`${API}/books/${bookId}/checkout`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patronId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast(`Book checked out. Due: ${new Date(data.dueDate).toLocaleDateString()}`);
+                    loadBooks();
+                    loadPatrons();
+                } else {
+                    showToast(data.error || 'Failed to checkout', 'error');
+                }
+            } catch (error) {
+                showToast('Failed to checkout', 'error');
+            }
+        }
+
+        async function returnBook(bookId, patronId) {
+            try {
+                const response = await fetch(`${API}/books/${bookId}/return`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ patronId })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast('Book returned successfully');
+                    loadBooks();
+                    loadPatrons();
+                } else {
+                    showToast(data.error || 'Failed to return book', 'error');
+                }
+            } catch (error) {
+                showToast('Failed to return book', 'error');
+            }
+        }
+
+        async function upgradePatron(patronId) {
+            try {
+                const response = await fetch(`${API}/patrons/${patronId}/upgrade`, {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    showToast('Patron upgraded to Researcher');
+                    loadPatrons();
+                } else {
+                    showToast(data.error || 'Failed to upgrade patron', 'error');
+                }
+            } catch (error) {
+                showToast('Failed to upgrade patron', 'error');
+            }
+        }
+
+        // === Render Functions ===
+
+        function renderBooks() {
+            const list = document.getElementById('books-list');
+
+            if (books.length === 0) {
+                list.innerHTML = `
+                    <li class="empty-state">
+                        <p>No books yet</p>
+                        <button class="btn btn-primary" onclick="showAddBookModal()">Add your first book</button>
+                    </li>
+                `;
+                return;
+            }
+
+            list.innerHTML = books.map(book => `
+                <li class="list-item" data-book-id="${book.bookId}">
+                    <div class="list-item-info">
+                        <h3>${escapeHtml(book.title)}</h3>
+                        <p>
+                            <span class="badge badge-${book.bookType.toLowerCase()}">${book.bookType}</span>
+                            <span class="badge badge-${book.state.toLowerCase()}">${book.state}</span>
+                            ${book.holdingPatronId ? `<br>Held by: ${getPatronName(book.holdingPatronId)}` : ''}
+                            ${book.checkedOutBy ? `<br>Checked out by: ${getPatronName(book.checkedOutBy)}` : ''}
+                            ${book.dueDate ? `<br>Due: ${new Date(book.dueDate).toLocaleDateString()}` : ''}
+                        </p>
+                    </div>
+                    <div class="actions">
+                        ${getBookActions(book)}
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function renderPatrons() {
+            const list = document.getElementById('patrons-list');
+
+            if (patrons.length === 0) {
+                list.innerHTML = `
+                    <li class="empty-state">
+                        <p>No patrons yet</p>
+                        <button class="btn btn-primary" onclick="showAddPatronModal()">Add your first patron</button>
+                    </li>
+                `;
+                return;
+            }
+
+            list.innerHTML = patrons.map(patron => `
+                <li class="list-item" data-patron-id="${patron.patronId}">
+                    <div class="list-item-info">
+                        <h3>${escapeHtml(patron.name)}</h3>
+                        <p>
+                            <span class="badge badge-${patron.patronType.toLowerCase()}">${patron.patronType}</span>
+                            <br>${escapeHtml(patron.email)}
+                            <br>Holds: ${patron.holdsCount} | Checkouts: ${patron.checkoutsCount}
+                        </p>
+                    </div>
+                    <div class="actions">
+                        ${patron.patronType === 'Regular' ?
+                            `<button class="btn btn-sm btn-success" onclick="upgradePatron('${patron.patronId}')">Upgrade</button>` : ''
+                        }
+                    </div>
+                </li>
+            `).join('');
+        }
+
+        function getBookActions(book) {
+            switch (book.state) {
+                case 'Available':
+                    return `<button class="btn btn-sm btn-warning" onclick="showPlaceHoldModal('${book.bookId}', '${escapeHtml(book.title)}')">Place Hold</button>`;
+                case 'OnHold':
+                    return `
+                        <button class="btn btn-sm btn-success" onclick="checkoutBook('${book.bookId}', '${book.holdingPatronId}')">Checkout</button>
+                        <button class="btn btn-sm btn-danger" onclick="cancelHold('${book.bookId}', '${book.holdingPatronId}')">Cancel</button>
+                    `;
+                case 'CheckedOut':
+                    return `<button class="btn btn-sm btn-primary" onclick="returnBook('${book.bookId}', '${book.checkedOutBy}')">Return</button>`;
+                default:
+                    return '';
+            }
+        }
+
+        function getPatronName(patronId) {
+            const patron = patrons.find(p => p.patronId === patronId);
+            return patron ? patron.name : patronId.slice(0, 8);
+        }
+
+        // === Modal Functions ===
+
+        function showAddBookModal() {
+            document.getElementById('add-book-modal').classList.add('show');
+        }
+
+        function showAddPatronModal() {
+            document.getElementById('add-patron-modal').classList.add('show');
+        }
+
+        function showPlaceHoldModal(bookId, title) {
+            document.getElementById('hold-book-id').value = bookId;
+            document.getElementById('hold-book-title').textContent = `Book: ${title}`;
+
+            // Populate patron dropdown
+            const select = document.getElementById('hold-patron');
+            select.innerHTML = '<option value="">-- Select a patron --</option>' +
+                patrons.map(p => `<option value="${p.patronId}">${p.name} (${p.patronType})</option>`).join('');
+
+            document.getElementById('place-hold-modal').classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        // Close modal on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('show');
+                }
+            });
+        });
+
+        // === Utility Functions ===
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast toast-${type} show`;
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>
