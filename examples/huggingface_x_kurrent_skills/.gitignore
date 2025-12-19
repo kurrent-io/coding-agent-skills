@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model outputs (large files)
+output/process-model/
+output/financial-model/
+output/data/*.jsonl
+output/reports/
+
+# Keep output directory structure
+!output/.gitkeep
+
+# PyTorch / ML
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.onnx
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+
+# Docker
+docker-compose.override.yml
+
+# Claude Code skills (external)
+.claude/
